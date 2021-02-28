@@ -35,33 +35,7 @@ const notifier = require('./notifiers')(trading_pairs);
 
 //////////////////////////////////////////////////////////////////////////////////
 
-const margin_pairs = [
-    "ADABTC",
-    "ATOMBTC",
-    "BATBTC",
-    "BCHBTC",
-    "BNBBTC",
-    "DASHBTC",
-    "EOSBTC",
-    "ETCBTC",
-    "ETHBTC",
-    "IOSTBTC",
-    "IOTABTC",
-    "LINKBTC",
-    "LTCBTC",
-    "MATICBTC",
-    "NEOBTC",
-    "ONTBTC",
-    "QTUMBTC",
-    "RVNBTC",
-    "TRXBTC",
-    "VETBTC",
-    "XLMBTC",
-    "XMRBTC",
-    "XRPBTC",
-    "XTZBTC",
-    "ZECBTC",
-]
+let margin_pairs = []
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -862,6 +836,23 @@ socket.on("user_payload", async (data) => {
 
 //////////////////////////////////////////////////////////////////////////////////
 
+async function UpdateMarginPairs() {
+    return new Promise((resolve, reject) => {
+        bnb_client.exchangeInfo((error, data) => {
+            if (error) {
+                console.log(error)
+                return reject(error)
+            }
+            const marginSymbolsData = data.symbols.filter(
+                (symbol) => symbol.isMarginTradingAllowed && symbol.symbol.endsWith("BTC")
+            )
+            margin_pairs = marginSymbolsData.map((symbol) => symbol.symbol)
+            console.log("Updated BTC margin pairs from Binance, found", margin_pairs.length, margin_pairs)
+            resolve(true)
+        })
+    })
+}
+
 async function ExchangeInfo() {
     return new Promise((resolve, reject) => {
         bnb_client.exchangeInfo((error, data) => {
@@ -869,6 +860,13 @@ async function ExchangeInfo() {
                 console.log(error)
                 return reject(error)
             }
+            
+            const marginSymbolsData = data.symbols.filter(
+                (symbol) => symbol.isMarginTradingAllowed && symbol.symbol.endsWith("BTC")
+            )
+            margin_pairs = marginSymbolsData.map((symbol) => symbol.symbol)
+            console.log("Updated BTC margin pairs from Binance, found", margin_pairs.length, margin_pairs)
+
             for (let obj of data.symbols) {
                 let filters = { status: obj.status }
                 for (let filter of obj.filters) {
@@ -949,6 +947,11 @@ async function run() {
     await ExchangeInfo()
     await UpdateOpenTrades()
     //await BalancesInfo()
+
+    // Update margin pairs every hour
+    setInterval(() => {
+        UpdateMarginPairs()
+    }, 3600000)
 }
 
 run()
