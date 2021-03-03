@@ -1,12 +1,11 @@
-const TradeQueue = function () {
-    const {
-        setIntervalAsync,
-        clearIntervalAsync,
-    } = require("set-interval-async/dynamic")
-    const colors = require("colors")
+const {
+    setIntervalAsync,
+    clearIntervalAsync,
+} = require("set-interval-async/dynamic")
 
+const TradeQueue = function () {
     const queue = []
-    const interval = 250 // ms
+    const interval = 250 // The interval in milliseconds the queue runs at.
     let setIntervalAsyncHandle
 
     const addToQueue = (task) => {
@@ -14,10 +13,7 @@ const TradeQueue = function () {
     }
 
     const startQueue = () => {
-        setIntervalAsyncHandle = setIntervalAsync(
-            () => processQueue(),
-            interval
-        )
+        setIntervalAsyncHandle = setIntervalAsync(processQueue, interval)
     }
 
     const stopQueue = async () => {
@@ -25,10 +21,6 @@ const TradeQueue = function () {
     }
 
     const processQueue = async () => {
-        if (queue.length === 0) {
-            return
-        }
-
         while (queue.length > 0) {
             const task = queue[0]
 
@@ -39,9 +31,9 @@ const TradeQueue = function () {
             } catch (error) {
                 task.onError(error)
                 if (error.body) {
-                    console.error(error.body)
+                    console.error("Error in queue", error.body)
                 } else {
-                    console.error("ERROR IN QUEUE!", JSON.stringify(error))
+                    console.error("Error in queue", JSON.stringify(error))
                 }
 
                 if (task.currentRetry >= task.maxRetries) {
