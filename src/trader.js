@@ -377,7 +377,11 @@ const handleSellSignal = async (signal) => {
         const alt = pair.replace("BTC", "")
         const tradeKey = signal.pair + signal.stratid
 
-        if (tradeShortEnabled && !tradingData.trading_pairs[tradeKey] && signal.new) {
+        if (
+            tradeShortEnabled &&
+            !tradingData.trading_pairs[tradeKey] &&
+            signal.new
+        ) {
             console.log(
                 colors.grey(
                     "SELL_SIGNAL :: ENTER SHORT TRADE ::",
@@ -1025,20 +1029,30 @@ socket.on("user_payload", async (data) => {
 //////////////////////////////////////////////////////////////////////////////////
 
 async function UpdateMarginPairs() {
-    return new Promise((resolve, reject) => {
-        bnb_client.exchangeInfo((error, data) => {
-            if (error) {
-                console.log(error)
-                return reject(error)
-            }
-            const marginSymbolsData = data.symbols.filter(
-                (symbol) => symbol.isMarginTradingAllowed && symbol.symbol.endsWith("BTC")
-            )
-            margin_pairs = marginSymbolsData.map((symbol) => symbol.symbol)
-            console.log("Updated BTC margin pairs from Binance, found", margin_pairs.length, margin_pairs)
-            resolve(true)
+    const job = async () => {
+        return new Promise((resolve, reject) => {
+            bnb_client.exchangeInfo((error, data) => {
+                if (error) {
+                    console.log(error)
+                    return reject(error)
+                }
+                const marginSymbolsData = data.symbols.filter(
+                    (symbol) =>
+                        symbol.isMarginTradingAllowed &&
+                        symbol.symbol.endsWith("BTC")
+                )
+                margin_pairs = marginSymbolsData.map((symbol) => symbol.symbol)
+                console.log(
+                    "Updated BTC margin pairs from Binance, found",
+                    margin_pairs.length
+                )
+                resolve(true)
+            })
         })
-    })
+    }
+
+    const task = new Task(job)
+    tradeQueue.addToQueue(task)
 }
 
 async function ExchangeInfo() {
@@ -1048,12 +1062,18 @@ async function ExchangeInfo() {
                 console.log(error)
                 return reject(error)
             }
-            
+
             const marginSymbolsData = data.symbols.filter(
-                (symbol) => symbol.isMarginTradingAllowed && symbol.symbol.endsWith("BTC")
+                (symbol) =>
+                    symbol.isMarginTradingAllowed &&
+                    symbol.symbol.endsWith("BTC")
             )
             margin_pairs = marginSymbolsData.map((symbol) => symbol.symbol)
-            console.log("Updated BTC margin pairs from Binance, found", margin_pairs.length, margin_pairs)
+            console.log(
+                "Updated BTC margin pairs from Binance, found",
+                margin_pairs.length,
+                margin_pairs
+            )
 
             for (let obj of data.symbols) {
                 let filters = { status: obj.status }
@@ -1139,7 +1159,7 @@ async function UpdateOpenTrades() {
 async function run() {
     await ExchangeInfo()
     await UpdateOpenTrades()
-    //await BalancesInfo()
+    // await BalancesInfo()
 
     // Update margin pairs every hour
     setInterval(() => {

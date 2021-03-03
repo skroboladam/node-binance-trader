@@ -14,10 +14,7 @@ const TradeQueue = function () {
     }
 
     const startQueue = () => {
-        setIntervalAsyncHandle = setIntervalAsync(
-            () => processQueue(),
-            interval
-        )
+        setIntervalAsyncHandle = setIntervalAsync(processQueue, interval)
     }
 
     const stopQueue = async () => {
