@@ -77,11 +77,14 @@ socket.on("buy_signal", async (signal) => {
         if (signal.pair.endsWith("BTC")) {
             alt = signal.pair.replace("BTC", "")
             baseCoin = "BTC"
+            console.log("para: BTC")
         } else if (signal.pair.endsWith("USDT")) {
             alt = signal.pair.replace("USDT", "")
             baseCoin = "USDT"
+            console.log("para: USDT")
         }
         const coinPair = alt + baseCoin;
+        console.log(baseCoin);
 
         if (!tradingData.trading_pairs[signal.pair + signal.stratid] && signal.new) {
             console.log(
@@ -215,7 +218,7 @@ socket.on("buy_signal", async (signal) => {
                     notifier.notifyEnterLongTraded(signal)
                 }
             } else {
-                console.log("PAIR UNKNOWN", alt)
+                console.log("PAIR UNKNOWN 221", alt)
             }
             //////
         } else if (
@@ -337,7 +340,7 @@ socket.on("buy_signal", async (signal) => {
                     notifier.notifyBuyToCoverTraded(signal)
                 }
             } else {
-                console.log("PAIR UNKNOWN", alt)
+                console.log("PAIR UNKNOWN 343", alt)
             }
         } else {
             console.log(
@@ -478,7 +481,7 @@ socket.on("sell_signal", async (signal) => {
                     notifier.notifyEnterShortTraded(signal)
                 }
             } else {
-                console.log("PAIR UNKNOWN", alt)
+                console.log("PAIR UNKNOWN 484", alt)
             }
 
             //////
@@ -644,7 +647,7 @@ socket.on("sell_signal", async (signal) => {
                 }
                 ///
             } else {
-                console.log("PAIR UNKNOWN", alt)
+                console.log("PAIR UNKNOWN 650", alt)
             }
         } else {
             console.log(
@@ -812,7 +815,7 @@ socket.on("close_traded_signal", async (signal) => {
                     }
                     ///
                 } else {
-                    console.log("PAIR UNKNOWN", alt)
+                    console.log("PAIR UNKNOWN 818", alt)
                 }
 
             } else {
@@ -917,7 +920,7 @@ socket.on("close_traded_signal", async (signal) => {
                     const task = new Task(job)
                     tradeQueue.addToQueue(task)
                 } else {
-                    console.log("PAIR UNKNOWN", alt)
+                    console.log("PAIR UNKNOWN 923", alt)
                 }
             } else {
                 // VIRTUAL TRADE
